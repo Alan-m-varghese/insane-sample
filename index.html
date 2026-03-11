@@ -434,7 +434,7 @@ footer span{color:var(--gold);}
       <h3>Ready to bring your vision to life?</h3>
       <p>Whether you have a fully scripted project or just a raw idea, I'm here to transform it into something unforgettable. Let's build something remarkable together.</p>
       <div class="contact-items">
-        <div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-item-label">Email</div><div class="contact-item-val">akhan85081@gmail.com</div></div></div>
+        <div class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-item-label">Email</div><div class="contact-item-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="91f0faf9f0ffa9a4a1a9a0d1f6fcf0f8fdbff2fefc">[email&#160;protected]</a></div></div></div>
         <div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-item-label">Phone / WhatsApp</div><div class="contact-item-val">+91 930 268 7554</div></div></div>
         <div class="contact-item"><div class="contact-icon">🕐</div><div><div class="contact-item-label">Availability</div><div class="contact-item-val">Full-Time · Ready to Start</div></div></div>
         <div class="contact-item"><div class="contact-icon">🎬</div><div><div class="contact-item-label">Services</div><div class="contact-item-val">Short-form &amp; Long-form Editing</div></div></div>
@@ -455,7 +455,7 @@ footer span{color:var(--gold);}
 
 <footer><p>© 2025 <span>Arshad</span> · Video Editor · Crafted with precision &amp; passion</p></footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ─────────────────────────────────────────
    INTERSECTION OBSERVER (scroll reveals)
    Defined first so everything below can use it
@@ -494,10 +494,13 @@ function rwPlay(overlay, idx) {
 (function buildRwGrid() {
   const grid = document.getElementById('rw-grid');
   grid.innerHTML = recentData.map((item, idx) => {
+    const thumbStyle = rwHasVideo(item)
+      ? `style="background-image:url('https://drive.google.com/thumbnail?id=${item.driveId}&sz=w400');background-size:cover;background-position:center;"`
+      : '';
     const inner = rwHasVideo(item)
       ? `<iframe src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe>
          <div class="rw-thumb" onclick="rwPlay(this,${idx})">
-           <div class="rw-thumb-bg ${item.bg}"></div>
+           <div class="rw-thumb-bg" ${thumbStyle}></div>
            <div class="rw-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
            <div class="rw-info"><div class="rw-title">${item.title}</div><div class="rw-sub">${item.sub}</div></div>
          </div>`
@@ -594,14 +597,21 @@ function stopCurrentVideo(cat){
   const c=document.getElementById(cat+'-center');if(!c)return;
   const f=c.querySelector('iframe');if(f)f.src='about:blank';c.classList.remove('playing');
 }
+function driveThumbnailStyle(item){
+  return hasVideo(item)
+    ? `style="background-image:url('https://drive.google.com/thumbnail?id=${item.driveId}&sz=w600');background-size:cover;background-position:center;"`
+    : '';
+}
 function placeholderCard(item,isCenter){
-  if(isCenter){return`<div class="vid-thumb-wrap no-video"><div class="vid-thumb-bg ${item.bg}"></div><div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(250,188,63,.5)" stroke-width="1.5"><path d="M15 10l4.553-2.277A1 1 0 0121 8.724v6.552a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub placeholder-hint">Paste Drive ID to enable</div></div></div>`;}
-  return`<div class="vid-thumb-wrap no-video"><div class="vid-thumb-bg ${item.bg}"></div><div class="vid-side-label">${item.title}</div></div>`;
+  const bgStyle = driveThumbnailStyle(item);
+  if(isCenter){return`<div class="vid-thumb-wrap no-video"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(250,188,63,.5)" stroke-width="1.5"><path d="M15 10l4.553-2.277A1 1 0 0121 8.724v6.552a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub placeholder-hint">Paste Drive ID to enable</div></div></div>`;}
+  return`<div class="vid-thumb-wrap no-video"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="vid-side-label">${item.title}</div></div>`;
 }
 function makeSlide(item,isCenter){
   if(!hasVideo(item))return placeholderCard(item,isCenter);
-  if(isCenter){return`<iframe src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="vid-thumb-wrap" onclick="playVideo(this)"><div class="vid-thumb-bg ${item.bg}"></div><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub">${item.sub}</div></div></div>`;}
-  return`<div class="vid-thumb-wrap"><div class="vid-thumb-bg ${item.bg}"></div><div class="vid-side-label">${item.title}</div></div>`;
+  const bgStyle = driveThumbnailStyle(item);
+  if(isCenter){return`<iframe src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="vid-thumb-wrap" onclick="playVideo(this)"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub">${item.sub}</div></div></div>`;}
+  return`<div class="vid-thumb-wrap"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="vid-side-label">${item.title}</div></div>`;
 }
 function playVideo(overlay){
   const slide=overlay.closest('.vid-slide');const cat=slide.id.split('-')[0];
