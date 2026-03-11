@@ -175,26 +175,15 @@ section{position:relative;z-index:1;}
 .rw-phone-shell iframe{width:100%;height:100%;border:none;display:block;pointer-events:none;}
 .rw-card.rw-playing .rw-phone-shell iframe{pointer-events:auto;}
 .rw-notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:52px;height:5px;background:rgba(0,0,0,.65);border-radius:3px;z-index:6;pointer-events:none;}
-.rw-thumb{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;cursor:none;
-  background:rgba(0,0,0,.38);
-  transition:opacity .35s;
-  z-index:5;
-  border-radius:24px;
-}
-.rw-card.rw-playing .rw-thumb{opacity:0;pointer-events:none;}
-.rw-thumb-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.48);z-index:0;border-radius:24px;}
-.rw-play-btn{position:relative;z-index:1;width:50px;height:50px;background:rgba(250,188,63,.22);border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(6px);}
-.rw-play-btn svg{width:20px;height:20px;fill:var(--gold);margin-left:3px;}
-.rw-card .rw-thumb:hover .rw-play-btn{background:rgba(250,188,63,.45);transform:scale(1.12);box-shadow:0 0 25px rgba(250,188,63,.55);}
-.rw-info{position:relative;z-index:1;text-align:center;padding:0 8px;}
-.rw-title{font-family:'Rajdhani',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:white;text-shadow:0 1px 8px rgba(0,0,0,.9);}
-.rw-sub{font-size:.6rem;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-top:3px;}
-.rw-ph-icon{position:relative;z-index:1;width:50px;height:50px;background:rgba(250,188,63,.07);border:1px dashed rgba(250,188,63,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;}
-.rw-ph-icon svg{width:22px;height:22px;}
-.rw-ph-hint{color:rgba(250,188,63,.42)!important;font-style:italic;}
+
+.rw-cover-iframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;border-radius:24px;pointer-events:none;}
+.rw-card.rw-playing .rw-cover-iframe{pointer-events:auto;}
+.rw-click-cover{position:absolute;inset:0;z-index:5;cursor:none;border-radius:24px;}
+.rw-card.rw-playing .rw-click-cover{display:none;}
+
+
+
+.rw-ph-hint{color:rgba(250,188,63,.42)!important;font-style:italic;position:relative;z-index:1;}
 .rw-badge{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.55);border:1px solid rgba(250,188,63,.22);border-radius:20px;padding:4px 10px;backdrop-filter:blur(8px);white-space:nowrap;}
 .rw-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:0 0 5px var(--gold);}
 .rw-badge-text{font-size:.58rem;color:rgba(253,240,213,.7);letter-spacing:.1em;text-transform:uppercase;font-family:'Rajdhani',sans-serif;}
@@ -232,9 +221,9 @@ section{position:relative;z-index:1;}
 .placeholder-icon{position:relative;z-index:1;width:60px;height:60px;background:rgba(250,188,63,.08);border:1px dashed rgba(250,188,63,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;}
 .placeholder-icon svg{width:26px;height:26px;}
 .placeholder-hint{color:rgba(250,188,63,.45)!important;font-style:italic;}
-.vid-thumb-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:none;background:rgba(0,0,0,.35);transition:opacity .35s;z-index:2;}
+.vid-thumb-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:none;background:transparent;transition:opacity .35s;z-index:2;}
 .vid-slide.playing .vid-thumb-wrap{opacity:0;pointer-events:none;}
-.vid-thumb-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.55);z-index:0;}
+.vid-thumb-bg{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:inherit;}.vid-thumb-bg img{width:100%;height:100%;object-fit:cover;display:block;}
 .bg-doc{background-color:#3a1500;}.bg-mg{background-color:#1a0020;}.bg-ca{background-color:#2a0500;}.bg-fin{background-color:#1a1000;}.bg-vis{background-color:#200015;}
 .play-btn{position:relative;z-index:1;width:60px;height:60px;background:rgba(250,188,63,.22);border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(6px);}
 .play-btn svg{width:22px;height:22px;fill:var(--gold);margin-left:4px;}
@@ -484,30 +473,21 @@ const RW_PH = 'PASTE_DRIVE_FILE_ID_HERE';
 function rwHasVideo(item) { return item.driveId && item.driveId !== RW_PH; }
 function rwSrc(id) { return `https://drive.google.com/file/d/${id}/preview?t=${Date.now()}`; }
 
-function rwPlay(overlay, idx) {
+function rwActivate(overlay, idx) {
   const card = overlay.closest('.rw-card');
-  const iframe = card.querySelector('iframe');
-  if (iframe && rwHasVideo(recentData[idx])) iframe.src = rwSrc(recentData[idx].driveId);
   card.classList.add('rw-playing');
+  // iframe was already loaded as preview/cover — clicking just removes the transparent cover
 }
 
 (function buildRwGrid() {
   const grid = document.getElementById('rw-grid');
   grid.innerHTML = recentData.map((item, idx) => {
-    const thumbStyle = rwHasVideo(item)
-      ? `style="background-image:url('https://drive.google.com/thumbnail?id=${item.driveId}&sz=w400');background-size:cover;background-position:center;"`
-      : '';
+    const previewSrc = rwHasVideo(item) ? `https://drive.google.com/file/d/${item.driveId}/preview` : '';
     const inner = rwHasVideo(item)
-      ? `<iframe src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe>
-         <div class="rw-thumb" onclick="rwPlay(this,${idx})">
-           <div class="rw-thumb-bg" ${thumbStyle}></div>
-           <div class="rw-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-           <div class="rw-info"><div class="rw-title">${item.title}</div><div class="rw-sub">${item.sub}</div></div>
-         </div>`
-      : `<div class="rw-thumb no-video">
-           <div class="rw-thumb-bg ${item.bg}"></div>
-           <div class="rw-ph-icon"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(250,188,63,.5)" stroke-width="1.5"><path d="M15 10l4.553-2.277A1 1 0 0121 8.724v6.552a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>
-           <div class="rw-info"><div class="rw-title">${item.title}</div><div class="rw-sub rw-ph-hint">Paste Drive ID to enable</div></div>
+      ? `<iframe class="rw-cover-iframe" src="${previewSrc}" allow="autoplay; fullscreen" allowfullscreen></iframe>
+         <div class="rw-click-cover" onclick="rwActivate(this,${idx})"></div>`
+      : `<div style="position:absolute;inset:0;background:#0d0005;border-radius:24px;display:flex;align-items:center;justify-content:center;">
+           <span style="font-family:'Rajdhani',sans-serif;font-size:.7rem;color:rgba(250,188,63,.5);letter-spacing:.1em;text-transform:uppercase;">No Video</span>
          </div>`;
     return `<div class="rw-card reveal">
       <div class="rw-phone-shell">
@@ -597,26 +577,29 @@ function stopCurrentVideo(cat){
   const c=document.getElementById(cat+'-center');if(!c)return;
   const f=c.querySelector('iframe');if(f)f.src='about:blank';c.classList.remove('playing');
 }
-function driveThumbnailStyle(item){
-  return hasVideo(item)
-    ? `style="background-image:url('https://drive.google.com/thumbnail?id=${item.driveId}&sz=w600');background-size:cover;background-position:center;"`
-    : '';
-}
-function placeholderCard(item,isCenter){
-  const bgStyle = driveThumbnailStyle(item);
-  if(isCenter){return`<div class="vid-thumb-wrap no-video"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(250,188,63,.5)" stroke-width="1.5"><path d="M15 10l4.553-2.277A1 1 0 0121 8.724v6.552a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub placeholder-hint">Paste Drive ID to enable</div></div></div>`;}
-  return`<div class="vid-thumb-wrap no-video"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="vid-side-label">${item.title}</div></div>`;
-}
 function makeSlide(item,isCenter){
-  if(!hasVideo(item))return placeholderCard(item,isCenter);
-  const bgStyle = driveThumbnailStyle(item);
-  if(isCenter){return`<iframe src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="vid-thumb-wrap" onclick="playVideo(this)"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub">${item.sub}</div></div></div>`;}
-  return`<div class="vid-thumb-wrap"><div class="vid-thumb-bg ${item.bg}" ${bgStyle}></div><div class="vid-side-label">${item.title}</div></div>`;
+  if(!hasVideo(item)){
+    if(isCenter){return`<div class="vid-thumb-wrap no-video" style="background:transparent;"><div class="vid-thumb-bg ${item.bg}"></div><div class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(250,188,63,.5)" stroke-width="1.5"><path d="M15 10l4.553-2.277A1 1 0 0121 8.724v6.552a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div><div class="vid-info"><div class="vid-title">${item.title}</div><div class="vid-sub placeholder-hint">Paste Drive ID to enable</div></div></div>`;}
+    return`<div class="vid-thumb-wrap no-video" style="background:transparent;"><div class="vid-thumb-bg ${item.bg}"></div><div class="vid-side-label">${item.title}</div></div>`;
+  }
+  const preview = `https://drive.google.com/file/d/${item.driveId}/preview`;
+  if(isCenter){
+    /* Preview iframe IS the cover — transparent click-layer activates it */
+    return`<iframe class="sw-cover-iframe" src="${preview}" allow="autoplay; fullscreen" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;"></iframe>
+    <div class="sw-click-cover" onclick="swActivate(this)" style="position:absolute;inset:0;z-index:3;cursor:none;"></div>`;
+  }
+  /* Side slides: preview iframe, non-interactive */
+  return`<iframe src="${preview}" allow="autoplay; fullscreen" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;opacity:1;"></iframe>`;
+}
+function swActivate(clickCover){
+  const slide = clickCover.closest('.vid-slide');
+  const iframe = slide.querySelector('.sw-cover-iframe');
+  if(iframe) iframe.style.pointerEvents='auto';
+  clickCover.style.display='none';
+  slide.classList.add('playing');
 }
 function playVideo(overlay){
-  const slide=overlay.closest('.vid-slide');const cat=slide.id.split('-')[0];
-  const item=data[cat][states[cat].current];const iframe=slide.querySelector('iframe');
-  if(iframe&&hasVideo(item))iframe.src=driveAutoSrc(item.driveId);slide.classList.add('playing');
+  swActivate(overlay);
 }
 function buildCarousel(cat){
   const items=data[cat];states[cat]={current:0,total:items.length};
@@ -629,10 +612,15 @@ function renderSlides(cat,autoplay=true){
   const{current,total}=states[cat];const items=data[cat];
   const prev=(current-1+total)%total,next=(current+1)%total;
   const le=document.getElementById(cat+'-left'),ce=document.getElementById(cat+'-center'),re=document.getElementById(cat+'-right');
-  const oi=ce.querySelector('iframe');if(oi)oi.src='about:blank';ce.classList.remove('playing');
+  ce.classList.remove('playing');
+  /* Re-add click cover for new center slide */
+  const existingCC=ce.querySelector('.sw-click-cover');
+  if(existingCC)existingCC.style.display='';
+  const existingIF=ce.querySelector('.sw-cover-iframe');
+  if(existingIF)existingIF.style.pointerEvents='none';
   le.innerHTML=makeSlide(items[prev],false);ce.innerHTML=makeSlide(items[current],true);re.innerHTML=makeSlide(items[next],false);
   document.querySelectorAll(`#dots-${cat} .dot`).forEach((d,i)=>d.classList.toggle('active',i===current));
-  if(autoplay&&hasVideo(items[current])){const iframe=ce.querySelector('iframe');if(iframe){setTimeout(()=>{iframe.src=driveAutoSrc(items[current].driveId);ce.classList.add('playing');},150);}}
+  /* iframe already shows preview as cover — no forced autoplay */
 }
 function slide(cat,dir){
   stopCurrentVideo(cat);states[cat].current=(states[cat].current+dir+states[cat].total)%states[cat].total;
